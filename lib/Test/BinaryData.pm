@@ -106,8 +106,9 @@ sub import {
 This test behaves like Test::More's C<is> test, but if the given data are not
 string equal, the diagnostics emits four columns, describing the strings in
 parallel, showing a simplified ASCII representation and a hexadecimal dump.
-This is useful when looking for subtle errors in whitespace or other invisible
-differences.
+
+Between the got and expected data for each line, a "=" or "!" indicates whether
+the chunks are identical or different.
 
 The C<$comment> and C<%arg> arguments are optional.  Valid arguments are:
 
@@ -134,7 +135,7 @@ sub _widths {
   return ($sixth * 2, $sixth);
 }
 
-sub is_binary($$;$$) {
+sub is_binary {
   my ($got, $expected, $comment, $arg) = @_;
 
   $arg ||= {};
