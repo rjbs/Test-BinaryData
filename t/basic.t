@@ -2,16 +2,146 @@
 use strict;
 use warnings;
 
+use Test::Tester;
 use Test::More tests => 3;
 use Test::BinaryData;
 
-is_binary('abc','abc');
-is_binary("abc\n", "abc\x0d\x0a");
+local $ENV{COLUMNS} = 80; # for the sake of sane defaults
+
+check_test(
+  sub { is_binary('abc','abc'); },
+  {
+    ok   => 1,
+    name => '',
+    diag => '',
+  },
+  "successful comparison"
+);
+
+my $comparison = <<'END_COMPARISON';
+got (hex)                got            expect (hex)             expect      
+6162630a---------------- abc.         ! 6162630d0a-------------- abc..       
+END_COMPARISON
+
+check_test(
+  sub { is_binary("abc\n", "abc\x0d\x0a"); },
+  {
+    ok   => 0,
+    name => '',
+    diag => $comparison,
+  },
+  "short, failed comparison"
+);
+
+check_test(
+  sub { is_binary("abc\n", "abc\x0d\x0a", '\n vs crlf'); },
+  {
+    ok   => 0,
+    name => '\n vs crlf',
+    diag => $comparison,
+  },
+  "short, failed comparison"
+);
 
 my $original = do { local $/; <DATA> };
 (my $crlfed = $original) =~ s/\n/\x0d\x0a/g;
 
-is_binary($original, $crlfed);
+my $long_comparison = <<'END_COMPARISON';
+got (hex)                got            expect (hex)             expect      
+46726f6d206d61696c2d6d69 From mail-mi = 46726f6d206d61696c2d6d69 From mail-mi
+6e65722d3130353239406c6f ner-10529@lo = 6e65722d3130353239406c6f ner-10529@lo
+63616c686f73742057656420 calhost Wed  = 63616c686f73742057656420 calhost Wed 
+4465632031382031323a3037 Dec 18 12:07 = 4465632031382031323a3037 Dec 18 12:07
+3a353520323030320a526563 :55 2002.Rec ! 3a353520323030320d0a5265 :55 2002..Re
+65697665643a2066726f6d20 eived: from  ! 6365697665643a2066726f6d ceived: from
+6d61696c6d616e2e6f70656e mailman.open ! 206d61696c6d616e2e6f7065  mailman.ope
+67726f75702e6f726720285b group.org ([ ! 6e67726f75702e6f72672028 ngroup.org (
+3139322e3135332e3136362e 192.153.166. ! 5b3139322e3135332e313636 [192.153.166
+395d290a0962792064656570 9])..by deep ! 2e395d290d0a096279206465 .9])...by de
+2d6461726b2d747275746866 -dark-truthf ! 65702d6461726b2d74727574 ep-dark-trut
+756c2d6d6972726f722e7061 ul-mirror.pa ! 6866756c2d6d6972726f722e hful-mirror.
+64207769746820736d747020 d with smtp  ! 706164207769746820736d74 pad with smt
+284578696d20332e33362023 (Exim 3.36 # ! 7020284578696d20332e3336 p (Exim 3.36
+31202844656269616e29290a 1 (Debian)). ! 202331202844656269616e29  #1 (Debian)
+096964203138427568352d30 .id 18Buh5-0 ! 290d0a096964203138427568 )...id 18Buh
+3030365a722d30300a09666f 006Zr-00..fo ! 352d303030365a722d30300d 5-0006Zr-00.
+72203c706f7369784073696d r <posix@sim ! 0a09666f72203c706f736978 ..for <posix
+6f6e2d636f7a656e732e6f72 on-cozens.or ! 4073696d6f6e2d636f7a656e @simon-cozen
+673e3b205765642c20313320 g>; Wed, 13  ! 732e6f72673e3b205765642c s.org>; Wed,
+4e6f7620323030322031303a Nov 2002 10: ! 203133204e6f762032303032  13 Nov 2002
+32343a3233202b303030300a 24:23 +0000. ! 2031303a32343a3233202b30  10:24:23 +0
+52656365697665643a202871 Received: (q ! 3030300d0a52656365697665 000..Receive
+6d61696c203136373920696e mail 1679 in ! 643a2028716d61696c203136 d: (qmail 16
+766f6b656420627920756964 voked by uid ! 373920696e766f6b65642062 79 invoked b
+20353033293b203133204e6f  503); 13 No ! 792075696420353033293b20 y uid 503); 
+7620323030322031303a3130 v 2002 10:10 ! 3133204e6f76203230303220 13 Nov 2002 
+3a3439202d303030300a5265 :49 -0000.Re ! 31303a31303a3439202d3030 10:10:49 -00
+73656e742d446174653a2031 sent-Date: 1 ! 30300d0a526573656e742d44 00..Resent-D
+33204e6f7620323030322031 3 Nov 2002 1 ! 6174653a203133204e6f7620 ate: 13 Nov 
+303a31303a3439202d303030 0:10:49 -000 ! 323030322031303a31303a34 2002 10:10:4
+300a-------------------- 0.           ! 39202d303030300d0a------ 9 -0000..   
+END_COMPARISON
+
+check_test(
+  sub { is_binary($original, $crlfed); },
+  {
+    ok   => 0,
+    name => '',
+    diag => $long_comparison,
+  },
+  "long, failed comparison"
+);
+
+check_test(
+  sub { is_binary($original, $crlfed, '\n vs crlf'); },
+  {
+    ok   => 0,
+    name => '\n vs crlf',
+    diag => $long_comparison,
+  },
+  "long, failed comparison"
+);
+
+my $max_diff_comparison = << 'END_COMPARISON';
+got (hex)                got            expect (hex)             expect      
+46726f6d206d61696c2d6d69 From mail-mi = 46726f6d206d61696c2d6d69 From mail-mi
+6e65722d3130353239406c6f ner-10529@lo = 6e65722d3130353239406c6f ner-10529@lo
+63616c686f73742057656420 calhost Wed  = 63616c686f73742057656420 calhost Wed 
+4465632031382031323a3037 Dec 18 12:07 = 4465632031382031323a3037 Dec 18 12:07
+3a353520323030320a526563 :55 2002.Rec ! 3a353520323030320d0a5265 :55 2002..Re
+...
+END_COMPARISON
+
+check_test(
+  sub { is_binary($original, $crlfed, '\n vs crlf, max 1', {max_diffs => 1}); },
+  {
+    ok   => 0,
+    name => '\n vs crlf, max 1',
+    diag => $max_diff_comparison,
+  },
+  "long comparison, max_diffs 1"
+);
+
+my $max_diff_comparison_2 = << 'END_COMPARISON';
+got (hex)                got            expect (hex)             expect      
+46726f6d206d61696c2d6d69 From mail-mi = 46726f6d206d61696c2d6d69 From mail-mi
+6e65722d3130353239406c6f ner-10529@lo = 6e65722d3130353239406c6f ner-10529@lo
+63616c686f73742057656420 calhost Wed  = 63616c686f73742057656420 calhost Wed 
+4465632031382031323a3037 Dec 18 12:07 = 4465632031382031323a3037 Dec 18 12:07
+3a353520323030320a526563 :55 2002.Rec ! 3a353520323030320d0a5265 :55 2002..Re
+65697665643a2066726f6d20 eived: from  ! 6365697665643a2066726f6d ceived: from
+...
+END_COMPARISON
+
+check_test(
+  sub { is_binary($original, $crlfed, '\n vs crlf, max 2', {max_diffs => 2}); },
+  {
+    ok   => 0,
+    name => '\n vs crlf, max 2',
+    diag => $max_diff_comparison_2,
+  },
+  "long comparison, max_diffs 2"
+);
 
 __DATA__
 From mail-miner-10529@localhost Wed Dec 18 12:07:55 2002
@@ -21,36 +151,3 @@ Received: from mailman.opengroup.org ([192.153.166.9])
 	for <posix@simon-cozens.org>; Wed, 13 Nov 2002 10:24:23 +0000
 Received: (qmail 1679 invoked by uid 503); 13 Nov 2002 10:10:49 -0000
 Resent-Date: 13 Nov 2002 10:10:49 -0000
-Date: Wed, 13 Nov 2002 10:06:51 GMT
-From: Andrew Josey <ajosey@rdg.opengroup.org>
-Message-Id: <1021113100650.ZM12997@skye.rdg.opengroup.org>
-In-Reply-To: Joanna Farley's message as of Nov 13,  9:56am.
-References:
-        <200211120937.JAA28130@xoneweb.opengroup.org> 
-	<1021112125524.ZM7503@skye.rdg.opengroup.org> 
-	<3DD221BB.13116D47@sun.com>
-X-Mailer: Z-Mail (5.0.0 30July97)
-To: austin-group-l@opengroup.org
-Subject: Re: Defect in XBD lround
-MIME-Version: 1.0
-Resent-Message-ID: <gZGK1B.A.uY.iUi09@mailman>
-Resent-To: austin-group-l@opengroup.org
-Resent-From: austin-group-l@opengroup.org
-X-Mailing-List: austin-group-l:archive/latest/4823
-X-Loop: austin-group-l@opengroup.org
-Precedence: list
-Resent-Sender: austin-group-l-request@opengroup.org
-Content-Type: text/plain; charset=us-ascii
-
-Joanna, All
-
-Thanks. I got the following response from Fred Tydeman.
-
-C99 Defect Report (DR) 240 covers this.  The main body of C99
-(7.12.9.7) says range error, while Annex F (F.9.6.7 and F.9.6.5)
-says "invalid" (domain error).  The result was to change 7.12.9.7
-to allow for either range or domain error.  The preferred error
-is domain error (so as match Annex F).  So, no need to change XBD.
-
-regards
-Andrew
