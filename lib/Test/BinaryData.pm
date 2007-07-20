@@ -30,6 +30,54 @@ $VERSION = '0.001';
     "basic data computation",
   );
 
+=head1 DESCRIPTION
+
+Sometimes using Test::More's C<is> test isn't good enough.  Its diagnostics may
+make it easy to miss differences between strings.
+
+For example, given two strings which differ only in their line endings, you can
+end up with diagnostic output like this:
+
+  not ok 1
+  #   Failed test in demo.t at line 8.
+  #          got: 'foo
+  # bar
+  # '
+  #     expected: 'foo
+  # bar
+  # '
+
+That's not very helpful, except to tell you that the alphanumeric characters
+seem to be in the right place.  By using C<is_binary> instead of C<is>, this
+output would be generated instead:
+
+  not ok 2
+  #   Failed test in demo.t at line 10.
+  # got (hex)            got          expect (hex)         expect    
+  # 666f6f0a6261720a---- foo.bar.   ! 666f6f0d0a6261720d0a foo..bar..
+
+The "!" tells us that the lines differ, and we can quickly scan the bytes that
+make up the line to see which differ.
+
+When comparing very long strings, we can stop after we've seen a few
+differences.  Here, we'll just look for two:
+
+  # got (hex)            got          expect (hex)         expect    
+  # 416c6c20435220616e64 All CR and = 416c6c20435220616e64 All CR and
+  # 206e6f204c46206d616b  no LF mak = 206e6f204c46206d616b  no LF mak
+  # 6573204d616320612064 es Mac a d = 6573204d616320612064 es Mac a d
+  # 756c6c20626f792e0d41 ull boy..A = 756c6c20626f792e0d41 ull boy..A
+  # 6c6c20435220616e6420 ll CR and  = 6c6c20435220616e6420 ll CR and 
+  # 6e6f204c46206d616b65 no LF make = 6e6f204c46206d616b65 no LF make
+  # 73204d61632061206475 s Mac a du = 73204d61632061206475 s Mac a du
+  # 6c6c20626f792e0d416c ll boy..Al ! 6c6c20626f792e0a416c ll boy..Al
+  # 6c20435220616e64206e l CR and n = 6c20435220616e64206e l CR and n
+  # 6f204c46206d616b6573 o LF makes = 6f204c46206d616b6573 o LF makes
+  # 204d616320612064756c  Mac a dul = 204d616320612064756c  Mac a dul
+  # 6c20626f792e0d416c6c l boy..All ! 6c20626f792e0a416c6c l boy..All
+  # 20435220616e64206e6f  CR and no = 20435220616e64206e6f  CR and no
+  # ...
+
 =cut
 
 use Test::Builder;
@@ -55,7 +103,7 @@ sub import {
 
   is_binary($got, $expected, $comment, \%arg);
 
-This test behaves like Test::More's C<eq> test, but if the given data are not
+This test behaves like Test::More's C<is> test, but if the given data are not
 string equal, the diagnostics emits four columns, describing the strings in
 parallel, showing a simplified ASCII representation and a hexadecimal dump.
 This is useful when looking for subtle errors in whitespace or other invisible
@@ -63,9 +111,9 @@ differences.
 
 The C<$comment> and C<%arg> arguments are optional.  Valid arguments are:
 
-  columns - the number of screen columns available
-            if the COLUMNS environment variable is an positive integer, then
-            COLUMNS - is used; otherwise, the default is 79
+  columns   - the number of screen columns available
+              if the COLUMNS environment variable is an positive integer, then
+              COLUMNS - is used; otherwise, the default is 79
 
   max_diffs - if given, this is the maximum number of differing lines that will
               be compared; if output would have been given beyond this line, 
@@ -128,18 +176,18 @@ sub is_binary($$;$$) {
 
     my $eq = $g_substr eq $e_substr;
 
-    my $g_hex = join '', map { sprintf '%02x', ord($_) } split //, $g_substr;
-    my $e_hex = join '', map { sprintf '%02x', ord($_) } split //, $e_substr;
+    my $g_hex = join q{}, map { sprintf '%02x', ord($_) } split //, $g_substr;
+    my $e_hex = join q{}, map { sprintf '%02x', ord($_) } split //, $e_substr;
 
-    $_ = join '', map { $_ =~ /\A[\x20-\x7e]\z/ ? $_ : '.' } split //, $_
+    $_ = join q{}, map { $_ =~ /\A[\x20-\x7e]\z/ ? $_ : q{.} } split //, $_
       for ($g_substr, $e_substr);
 
     $_ = sprintf "%-${aw}s", $_ for ($g_substr, $e_substr);
-    $_ .= '-' x ($hw - length) for ($g_hex, $e_hex);
+    $_ .= q{-} x ($hw - length) for ($g_hex, $e_hex);
 
     $Test->diag(
       "$g_hex $g_substr",
-      ($eq ? ' = ' : ' ! '),
+      ($eq ? q{ = } : q{ ! }),
       "$e_hex $e_substr"
     );
 
