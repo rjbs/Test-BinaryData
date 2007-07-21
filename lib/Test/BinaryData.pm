@@ -1,5 +1,7 @@
 
 use strict;
+use warnings;
+
 package Test::BinaryData;
 
 =head1 NAME
@@ -83,9 +85,9 @@ differences.  Here, we'll just look for two:
 use Test::Builder;
 require Exporter;
 @Test::BinaryData::ISA = qw(Exporter);
-@Test::BinaryData::EXPORT = qw(
-  is_binary
-);
+@Test::BinaryData::EXPORT = qw(is_binary);
+
+require bytes;
 
 my $Test = Test::Builder->new;
 
@@ -158,7 +160,7 @@ sub is_binary {
 
   $Test->ok(0, $comment);
 
-  my $max_length = (sort map { length } $got, $expected)[1];
+  my $max_length = (sort map { bytes::length($_) } $got, $expected)[1];
 
   $Test->diag(
     sprintf "%-${hw}s %-${aw}s   %-${hw}s %-${aw}s",
@@ -172,19 +174,30 @@ sub is_binary {
       last CHUNK;
     }
 
-    my $g_substr = substr $got,      $pos, $aw;
-    my $e_substr = substr $expected, $pos, $aw;
+    my $g_substr = bytes::substr($got,      $pos, $aw);
+    my $e_substr = bytes::substr($expected, $pos, $aw);
 
     my $eq = $g_substr eq $e_substr;
 
-    my $g_hex = join q{}, map { sprintf '%02x', ord($_) } split //, $g_substr;
-    my $e_hex = join q{}, map { sprintf '%02x', ord($_) } split //, $e_substr;
+    my $g_hex =
+      join q{},
+      map { sprintf '%02x', ord(bytes::substr($g_substr, $_, 1)) }
+      0 .. bytes::length($g_substr) - 1;
 
-    $_ = join q{}, map { $_ =~ /\A[\x20-\x7e]\z/ ? $_ : q{.} } split //, $_
-      for ($g_substr, $e_substr);
+    my $e_hex =
+      join q{},
+      map { sprintf '%02x', ord(bytes::substr($e_substr, $_, 1)) }
+      0 .. bytes::length($e_substr) - 1;
+
+    for my $str ($g_substr, $e_substr) {
+      for my $pos (0 .. bytes::length($str) - 1) {
+        my $c = bytes::substr($str, $pos, 1);
+        bytes::substr($str, $pos, 1, q{.}) if ord($c) < 0x20 or ord($c) > 0x7e;
+      }
+    }
 
     $_ = sprintf "%-${aw}s", $_ for ($g_substr, $e_substr);
-    $_ .= q{-} x ($hw - length) for ($g_hex, $e_hex);
+    $_ .= q{-} x ($hw - bytes::length($_)) for ($g_hex, $e_hex);
 
     $Test->diag(
       "$g_hex $g_substr",

@@ -3,7 +3,7 @@ use strict;
 use warnings;
 
 use Test::Tester;
-use Test::More tests => 49;
+use Test::More tests => 56;
 use Test::BinaryData;
 
 local $ENV{COLUMNS} = 80; # for the sake of sane defaults
@@ -142,6 +142,22 @@ check_test(
   },
   "long comparison, max_diffs 2"
 );
+
+my $utf_comparison = <<'END_COMPARISON';
+got (hex)                got            expect (hex)             expect      
+e188b4------------------ ...          ! e188b5------------------ ...         
+END_COMPARISON
+
+check_test(
+  sub { is_binary("\x{1234}", "\x{1235}", 'compare two unicode glyphs') },
+  {
+    ok   => 0,
+    name => 'compare two unicode glyphs',
+    diag => $utf_comparison,
+  },
+  "utf compare"
+);
+
 
 __DATA__
 From mail-miner-10529@localhost Wed Dec 18 12:07:55 2002
