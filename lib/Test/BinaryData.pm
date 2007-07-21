@@ -8,14 +8,14 @@ Test::BinaryData - compare two things, give hex dumps if they differ
 
 =head1 VERSION
 
-version 0.001
+version 0.002
 
  $Id$
 
 =cut
 
 use vars qw($VERSION);
-$VERSION = '0.001';
+$VERSION = '0.002';
 
 =head1 SYNOPSIS
 
