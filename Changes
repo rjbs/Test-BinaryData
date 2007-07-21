@@ -1,5 +1,8 @@
 Revision history for Test-BinaryData
 
+0.003     2007-07-20
+          use bytes to get at bytes for sure
+
 0.002     2007-07-20
           fix version indicators
 
