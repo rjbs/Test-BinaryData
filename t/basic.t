@@ -3,7 +3,7 @@ use strict;
 use warnings;
 
 use Test::Tester;
-use Test::More tests => 3;
+use Test::More tests => 49;
 use Test::BinaryData;
 
 local $ENV{COLUMNS} = 80; # for the sake of sane defaults

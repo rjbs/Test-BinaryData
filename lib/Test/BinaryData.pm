@@ -10,7 +10,7 @@ Test::BinaryData - compare two things, give hex dumps if they differ
 
 version 0.001
 
- $Id: /my/cs/projects/Test-MinimumVersion/trunk/lib/Test/MinimumVersion.pm 31951 2007-07-03T21:47:09.752107Z rjbs  $
+ $Id$
 
 =cut
 
