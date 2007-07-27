@@ -1,5 +1,9 @@
 Revision history for Test-BinaryData
 
+0.004     2007-07-20
+          properly require Carp
+          avoid an undef warning when checking $COLUMNS (Thanks, Geoff Young!)
+
 0.003     2007-07-20
           use bytes to get at bytes for sure
 
