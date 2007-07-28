@@ -1,6 +1,9 @@
 Revision history for Test-BinaryData
 
-0.004     2007-07-20
+0.005     2007-07-28
+          it seems like bytes::substr is TOTALLY NUTS on 5.6; worked around it
+
+0.004     2007-07-27
           properly require Carp
           avoid an undef warning when checking $COLUMNS (Thanks, Geoff Young!)
 

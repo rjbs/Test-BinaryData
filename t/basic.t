@@ -148,16 +148,18 @@ got (hex)                got            expect (hex)             expect
 e188b4------------------ ...          ! e188b5------------------ ...         
 END_COMPARISON
 
-check_test(
-  sub { is_binary("\x{1234}", "\x{1235}", 'compare two unicode glyphs') },
-  {
-    ok   => 0,
-    name => 'compare two unicode glyphs',
-    diag => $utf_comparison,
-  },
-  "utf compare"
-);
-
+SKIP: {
+  skip "bytes::substr is totally insane before 5.8", 7 unless $] >= 5.008;
+  check_test(
+    sub { is_binary("\x{1234}", "\x{1235}", 'compare two unicode glyphs') },
+    {
+      ok   => 0,
+      name => 'compare two unicode glyphs',
+      diag => $utf_comparison,
+    },
+    "utf compare"
+  );
+}
 
 __DATA__
 From mail-miner-10529@localhost Wed Dec 18 12:07:55 2002
