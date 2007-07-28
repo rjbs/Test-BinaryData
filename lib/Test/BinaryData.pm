@@ -10,14 +10,14 @@ Test::BinaryData - compare two things, give hex dumps if they differ
 
 =head1 VERSION
 
-version 0.005
+version 0.006
 
  $Id$
 
 =cut
 
 use vars qw($VERSION);
-$VERSION = '0.005';
+$VERSION = '0.006';
 
 =head1 SYNOPSIS
 
@@ -80,30 +80,14 @@ differences.  Here, we'll just look for two:
   # 20435220616e64206e6f  CR and no = 20435220616e64206e6f  CR and no
   # ...
 
-=head1 WARNINGS
-
-It turns out that the C<substr> provided by F<bytes.pm> is busted.  This hangs:
-
-  bytes::substr("foo", 1, 0);
-
-What the heck?!  So, on 5.6, we use the core substr and length routines, which
-means that wide character support is busted.  This shouldn't be too surprising:
-Unicode on 5.6 is busted in general.
-
 =cut
 
+use bytes;
 use Carp ();
 use Test::Builder;
 require Exporter;
 @Test::BinaryData::ISA = qw(Exporter);
 @Test::BinaryData::EXPORT = qw(is_binary);
-
-BEGIN {
-  if ($] >= 5.008) {
-    require bytes;
-    bytes->import;
-  }
-}
 
 my $Test = Test::Builder->new;
 
