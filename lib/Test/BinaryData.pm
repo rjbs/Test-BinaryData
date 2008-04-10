@@ -2,6 +2,8 @@ use strict;
 use warnings;
 package Test::BinaryData;
 
+use 5.006;
+
 =head1 NAME
 
 Test::BinaryData - compare two things, give hex dumps if they differ
