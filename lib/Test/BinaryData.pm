@@ -1,7 +1,5 @@
-
 use strict;
 use warnings;
-
 package Test::BinaryData;
 
 =head1 NAME
@@ -10,14 +8,11 @@ Test::BinaryData - compare two things, give hex dumps if they differ
 
 =head1 VERSION
 
-version 0.006
-
- $Id$
+version 0.007
 
 =cut
 
-use vars qw($VERSION);
-$VERSION = '0.006';
+our $VERSION = '0.007';
 
 =head1 SYNOPSIS
 
