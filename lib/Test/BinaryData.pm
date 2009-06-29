@@ -86,14 +86,14 @@ require Exporter;
 @Test::BinaryData::ISA = qw(Exporter);
 @Test::BinaryData::EXPORT = qw(is_binary);
 
-my $Test = Test::Builder->new;
-
 sub import {
   my($self) = shift;
   my $pack = caller;
 
+  my $Test = Test::Builder->new;
+
   $Test->exported_to($pack);
-  $Test->plan(@_);
+  $Test->plan(@_) if @_;
 
   $self->export_to_level(1, $self, @Test::BinaryData::EXPORT);
 }
@@ -136,6 +136,8 @@ sub _widths {
 
 sub is_binary {
   my ($got, $expected, $comment, $arg) = @_;
+
+  my $Test = Test::Builder->new;
 
   $arg ||= {};
 
