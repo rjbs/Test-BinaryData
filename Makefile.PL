@@ -9,6 +9,8 @@ author    ('Ricardo SIGNES <rjbs@cpan.org>');
 
 requires(bytes => 0.000); # minimum unknown
 build_requires('Test::Tester'     => 0.000); # minimum unknown
-author_tests('xt');
+
+auto_manifest;
+extra_tests;
 
 WriteAll();

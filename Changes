@@ -1,5 +1,8 @@
 Revision history for Test-BinaryData
 
+0.008     2009-06-29
+          change where we call Test::Builder->new to get along with nested TAP
+
 0.007     2008-04-09
           packaging improvements
 
