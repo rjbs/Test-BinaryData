@@ -77,6 +77,14 @@ differences.  Here, we'll just look for two:
   # 20435220616e64206e6f  CR and no = 20435220616e64206e6f  CR and no
   # ...
 
+=head1 WARNING
+
+This library is for comparing B<binary> data.  That is, B<byte strings>.
+Often, in Perl 5, it is not clear whether a scalar contains a byte string or a
+character strings.  You should use this library for comparing byte strings
+only.  If either the "have" or "want" values contain wide characters -- that is,
+characters that won't fit in one byte -- then the test will fail.
+
 =cut
 
 use Carp ();
@@ -152,8 +160,17 @@ sub is_binary {
 
   my ($hw, $aw) = _widths($arg->{columns});
 
-  my $have_wide = grep { ord > 255 } split //, $have;
-  my $want_wide = grep { ord > 255 } split //, $want;
+  my $have_is_wide = grep { ord > 255 } split //, $have;
+  my $want_is_wide = grep { ord > 255 } split //, $want;
+
+  if ($have_is_wide or $want_is_wide) {
+    $Test->ok(0, $comment);
+
+    $Test->diag("value for 'have' contains wide bytes") if $have_is_wide;
+    $Test->diag("value for 'want' contains wide bytes") if $want_is_wide;
+
+    return;
+  }
 
   if ($have eq $want) {
     return $Test->ok(1, $comment);

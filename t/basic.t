@@ -3,7 +3,7 @@ use strict;
 use warnings;
 
 use Test::Tester;
-use Test::More tests => 56;
+use Test::More tests => 63;
 use Test::BinaryData;
 
 use Encode ();
@@ -164,6 +164,21 @@ check_test(
     diag => $utf_comparison,
   },
   "utf compare"
+);
+
+my $wide_diag = <<'END_COMPARISON';
+value for 'have' contains wide bytes
+value for 'want' contains wide bytes
+END_COMPARISON
+
+check_test(
+  sub { is_binary("\x{1234}", "\x{1235}", 'two unencoded unicode glyphs') },
+  {
+    ok   => 0,
+    name => 'two unencoded unicode glyphs',
+    diag => $wide_diag,
+  },
+  "wide character string compare"
 );
 
 __DATA__
