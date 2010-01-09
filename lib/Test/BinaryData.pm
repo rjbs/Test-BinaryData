@@ -10,11 +10,11 @@ Test::BinaryData - compare two things, give hex dumps if they differ
 
 =head1 VERSION
 
-version 0.008
+version 0.009
 
 =cut
 
-our $VERSION = '0.008';
+our $VERSION = '0.009';
 
 =head1 SYNOPSIS
 
