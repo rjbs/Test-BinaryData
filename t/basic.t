@@ -6,6 +6,8 @@ use Test::Tester;
 use Test::More tests => 56;
 use Test::BinaryData;
 
+use Encode ();
+
 local $ENV{COLUMNS} = 80; # for the sake of sane defaults
 
 check_test(
@@ -19,7 +21,7 @@ check_test(
 );
 
 my $comparison = <<'END_COMPARISON';
-got (hex)                got            expect (hex)             expect      
+have (hex)               have           want (hex)               want        
 6162630a---------------- abc.         ! 6162630d0a-------------- abc..       
 END_COMPARISON
 
@@ -47,7 +49,7 @@ my $original = do { local $/; <DATA> };
 (my $crlfed = $original) =~ s/\n/\x0d\x0a/g;
 
 my $long_comparison = <<'END_COMPARISON';
-got (hex)                got            expect (hex)             expect      
+have (hex)               have           want (hex)               want        
 46726f6d206d61696c2d6d69 From mail-mi = 46726f6d206d61696c2d6d69 From mail-mi
 6e65722d3130353239406c6f ner-10529@lo = 6e65722d3130353239406c6f ner-10529@lo
 63616c686f73742057656420 calhost Wed  = 63616c686f73742057656420 calhost Wed 
@@ -103,7 +105,7 @@ check_test(
 );
 
 my $max_diff_comparison = << 'END_COMPARISON';
-got (hex)                got            expect (hex)             expect      
+have (hex)               have           want (hex)               want        
 46726f6d206d61696c2d6d69 From mail-mi = 46726f6d206d61696c2d6d69 From mail-mi
 6e65722d3130353239406c6f ner-10529@lo = 6e65722d3130353239406c6f ner-10529@lo
 63616c686f73742057656420 calhost Wed  = 63616c686f73742057656420 calhost Wed 
@@ -123,7 +125,7 @@ check_test(
 );
 
 my $max_diff_comparison_2 = << 'END_COMPARISON';
-got (hex)                got            expect (hex)             expect      
+have (hex)               have           want (hex)               want        
 46726f6d206d61696c2d6d69 From mail-mi = 46726f6d206d61696c2d6d69 From mail-mi
 6e65722d3130353239406c6f ner-10529@lo = 6e65722d3130353239406c6f ner-10529@lo
 63616c686f73742057656420 calhost Wed  = 63616c686f73742057656420 calhost Wed 
@@ -144,15 +146,21 @@ check_test(
 );
 
 my $utf_comparison = <<'END_COMPARISON';
-got (hex)                got            expect (hex)             expect      
+have (hex)               have           want (hex)               want        
 e188b4------------------ ...          ! e188b5------------------ ...         
 END_COMPARISON
 
 check_test(
-  sub { is_binary("\x{1234}", "\x{1235}", 'compare two unicode glyphs') },
+  sub {
+    is_binary(
+      Encode::encode('utf-8', "\x{1234}"),
+      Encode::encode('utf-8', "\x{1235}"),
+      'compare two utf-8 encoded unicode glyphs'
+    )
+  },
   {
     ok   => 0,
-    name => 'compare two unicode glyphs',
+    name => 'compare two utf-8 encoded unicode glyphs',
     diag => $utf_comparison,
   },
   "utf compare"

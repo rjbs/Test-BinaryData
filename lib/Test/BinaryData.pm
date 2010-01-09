@@ -52,7 +52,7 @@ output would be generated instead:
 
   not ok 2
   #   Failed test in demo.t at line 10.
-  # got (hex)            got          expect (hex)         expect    
+  # have (hex)           have         want (hex)           want
   # 666f6f0a6261720a---- foo.bar.   ! 666f6f0d0a6261720d0a foo..bar..
 
 The "!" tells us that the lines differ, and we can quickly scan the bytes that
@@ -61,7 +61,7 @@ make up the line to see which differ.
 When comparing very long strings, we can stop after we've seen a few
 differences.  Here, we'll just look for two:
 
-  # got (hex)            got          expect (hex)         expect    
+  # have (hex)           have         want (hex)           want    
   # 416c6c20435220616e64 All CR and = 416c6c20435220616e64 All CR and
   # 206e6f204c46206d616b  no LF mak = 206e6f204c46206d616b  no LF mak
   # 6573204d616320612064 es Mac a d = 6573204d616320612064 es Mac a d
@@ -79,7 +79,6 @@ differences.  Here, we'll just look for two:
 
 =cut
 
-use bytes;
 use Carp ();
 use Test::Builder;
 require Exporter;
@@ -100,7 +99,7 @@ sub import {
 
 =head2 is_binary
 
-  is_binary($got, $expected, $comment, \%arg);
+  is_binary($have, $want, $comment, \%arg);
 
 This test behaves like Test::More's C<is> test, but if the given data are not
 string equal, the diagnostics emits four columns, describing the strings in
@@ -135,7 +134,7 @@ sub _widths {
 }
 
 sub is_binary {
-  my ($got, $expected, $comment, $arg) = @_;
+  my ($have, $want, $comment, $arg) = @_;
 
   my $Test = Test::Builder->new;
 
@@ -153,17 +152,20 @@ sub is_binary {
 
   my ($hw, $aw) = _widths($arg->{columns});
 
-  if ($got eq $expected) {
+  my $have_wide = grep { ord > 255 } split //, $have;
+  my $want_wide = grep { ord > 255 } split //, $want;
+
+  if ($have eq $want) {
     return $Test->ok(1, $comment);
   }
 
   $Test->ok(0, $comment);
 
-  my $max_length = (sort map { length($_) } $got, $expected)[1];
+  my $max_length = (sort map { length($_) } $have, $want)[1];
 
   $Test->diag(
     sprintf "%-${hw}s %-${aw}s   %-${hw}s %-${aw}s",
-      map {; "$_ (hex)", "$_" } qw(got expect)
+      map {; "$_ (hex)", "$_" } qw(have want)
   );
 
   my $seen_diffs = 0;
@@ -173,8 +175,8 @@ sub is_binary {
       last CHUNK;
     }
 
-    my $g_substr = substr($got,      $pos, $aw);
-    my $e_substr = substr($expected, $pos, $aw);
+    my $g_substr = substr($have, $pos, $aw);
+    my $e_substr = substr($want, $pos, $aw);
 
     my $eq = $g_substr eq $e_substr;
 
@@ -218,7 +220,7 @@ sub is_binary {
 
 =item * optional position markers
 
-     got (hex)        got        expect (hex)     expect  
+     have (hex)       have       want (hex)       want
   00 46726f6d206d6169 From mai = 46726f6d206d6169 From mai
   08 3130353239406c6f 10529@lo = 3130353239406c6f 10529@lo
   16 63616c686f737420 calhost  = 63616c686f737420 calhost 
