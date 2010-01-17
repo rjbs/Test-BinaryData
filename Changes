@@ -1,5 +1,8 @@
 Revision history for Test-BinaryData
 
+0.010     2010-01-16
+          update prereqs to match changes from 0.009
+
 0.009     2010-01-08
           replace wrong-minded use of bytes.pm; replace with Encode
 
