@@ -1,5 +1,8 @@
 Revision history for Test-BinaryData
 
+0.011     2010-01-28
+          require a newer Test::Tester to build with test framework changes
+
 0.010     2010-01-16
           update prereqs to match changes from 0.009
 

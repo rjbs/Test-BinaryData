@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 
-use Test::Tester;
+use Test::Tester 0.107;
 use Test::More tests => 63;
 use Test::BinaryData;
 
