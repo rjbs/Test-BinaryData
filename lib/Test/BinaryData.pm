@@ -1,20 +1,9 @@
 use strict;
 use warnings;
 package Test::BinaryData;
+# ABSTRACT: compare two things, give hex dumps if they differ
 
 use 5.006;
-
-=head1 NAME
-
-Test::BinaryData - compare two things, give hex dumps if they differ
-
-=head1 VERSION
-
-version 0.011
-
-=cut
-
-our $VERSION = '0.011';
 
 =head1 SYNOPSIS
 
@@ -105,13 +94,25 @@ sub import {
   $self->export_to_level(1, $self, @Test::BinaryData::EXPORT);
 }
 
-=head2 is_binary
+=func is_binary
 
   is_binary($have, $want, $comment, \%arg);
 
 This test behaves like Test::More's C<is> test, but if the given data are not
 string equal, the diagnostics emits four columns, describing the strings in
 parallel, showing a simplified ASCII representation and a hexadecimal dump.
+
+If C<$want> is an arrayref, it's treated as a sequence of strings giving hex
+values for expected bytes.  For example, this is a passing test:
+
+  is_binary(
+    "Mumblefrotz",
+    [ qw(4d75 6d62 6c65 6672 6f74 7a0a) ],
+  );
+
+Notice that each string in the sequence is broken into two-character pieces.
+This makes this interface accept the kind of dumps produced by F<xxd> or
+Test::BinaryData itself.
 
 Between the got and expected data for each line, a "=" or "!" indicates whether
 the chunks are identical or different.
@@ -159,6 +160,8 @@ sub is_binary {
   Carp::croak 'minimum columns is 44' if $arg->{columns} < 44;
 
   my ($hw, $aw) = _widths($arg->{columns});
+
+  $want = join q{}, map { chr hex } map { unpack "(a2)*" } @$want if ref $want;
 
   my $have_is_wide = grep { ord > 255 } split //, $have;
   my $want_is_wide = grep { ord > 255 } split //, $want;
@@ -229,13 +232,11 @@ sub is_binary {
   return;
 }
 
-1;
-
 =head1 TODO
 
-=over
+=begin :list
 
-=item * optional position markers
+* optional position markers
 
      have (hex)       have       want (hex)       want
   00 46726f6d206d6169 From mai = 46726f6d206d6169 From mai
@@ -246,24 +247,13 @@ sub is_binary {
   40 3a35352032303032 :55 2002 = 3a35352032303032 :55 2002
   48 0a52656365697665 .Receive ! 0d0a526563656976 ..Receiv
 
-=item * investigate probably bugs with wide chars, multibyte strings
+* investigate probably bugs with wide chars, multibyte strings
 
-I wrote this primarily for detecting CRLF problems.  It would probably be
-useful for wonky character encodings, but I know very little of them.  Patches
-and tests welcome.
+I wrote this primarily for detecting CRLF problems, but it's also very useful
+for dealing with encoded strings.
 
-=back
-
-=head1 AUTHOR
-
-Ricardo SIGNES, C<< <rjbs at cpan.org> >>
-
-=head1 COPYRIGHT & LICENSE
-
-Copyright 2007, Ricardo SIGNES.
-
-This program is free software; you can redistribute it and/or modify it
-under the same terms as Perl itself.
+=end :list
 
 =cut
 
+1;

@@ -181,6 +181,21 @@ check_test(
   "wide character string compare"
 );
 
+check_test(
+  sub {
+    is_binary(
+      "Queensrÿche",
+      [ qw( 5175 6565 6e73 72c3 bf63 6865 ) ],
+      'encoded y-umlaut'
+    )
+  },
+  {
+    ok   => 1,
+    name => 'encoded y-umlaut',
+  },
+  "compare encoded octets; want is arrayref"
+);
+
 __DATA__
 From mail-miner-10529@localhost Wed Dec 18 12:07:55 2002
 Received: from mailman.opengroup.org ([192.153.166.9])

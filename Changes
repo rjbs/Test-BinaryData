@@ -1,5 +1,8 @@
 Revision history for Test-BinaryData
 
+{{$NEXT}}
+          allow arrayref-of-hexy-strings as wanted data
+
 0.011     2010-01-28
           require a newer Test::Tester to build with test framework changes
 
