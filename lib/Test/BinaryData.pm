@@ -161,7 +161,9 @@ sub is_binary {
 
   my ($hw, $aw) = _widths($arg->{columns});
 
-  $want = join q{}, map { chr hex } map { unpack "(a2)*" } @$want if ref $want;
+  if (ref $want) {
+    $want = join q{}, map { chr hex } map { unpack "(a2)*", $_ } @$want;
+  }
 
   my $have_is_wide = grep { ord > 255 } split //, $have;
   my $want_is_wide = grep { ord > 255 } split //, $want;
