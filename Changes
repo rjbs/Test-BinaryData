@@ -1,6 +1,8 @@
 Revision history for Test-BinaryData
 
 {{$NEXT}}
+        - update packaging and metadata
+        - minimum required Perl is now v5.12
 
 0.014     2013-10-18 11:29:49 America/New_York
           update bugtracker and repo metadata
