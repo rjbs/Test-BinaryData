@@ -8,7 +8,7 @@ use 5.006;
 =head1 SYNOPSIS
 
   use Test::BinaryData;
-  
+
   my $computed_data = do_something_complicated;
   my $expected_data = read_file('correct.data');
 
@@ -50,7 +50,7 @@ make up the line to see which differ.
 When comparing very long strings, we can stop after we've seen a few
 differences.  Here, we'll just look for two:
 
-  # have (hex)           have         want (hex)           want    
+  # have (hex)           have         want (hex)           want
   # 416c6c20435220616e64 All CR and = 416c6c20435220616e64 All CR and
   # 206e6f204c46206d616b  no LF mak = 206e6f204c46206d616b  no LF mak
   # 6573204d616320612064 es Mac a d = 6573204d616320612064 es Mac a d
@@ -124,7 +124,7 @@ The C<$comment> and C<%arg> arguments are optional.  Valid arguments are:
               COLUMNS - is used; otherwise, the default is 79
 
   max_diffs - if given, this is the maximum number of differing lines that will
-              be compared; if output would have been given beyond this line, 
+              be compared; if output would have been given beyond this line,
               it will be replaced with an elipsis ("...")
 
 =cut
