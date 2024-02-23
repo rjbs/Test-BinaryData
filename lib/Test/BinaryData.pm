@@ -165,8 +165,8 @@ sub is_binary {
     $want = join q{}, map { chr hex } map { unpack "(a2)*", $_ } @$want;
   }
 
-  my $have_is_wide = grep { ord > 255 } split //, $have;
-  my $want_is_wide = grep { ord > 255 } split //, $want;
+  my $have_is_wide = $have =~ /[^\x00-\xFF]/;
+  my $want_is_wide = $want =~ /[^\x00-\xFF]/;
 
   if ($have_is_wide or $want_is_wide) {
     $Test->ok(0, $comment);
