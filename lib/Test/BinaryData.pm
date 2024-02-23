@@ -171,8 +171,8 @@ sub is_binary {
   if ($have_is_wide or $want_is_wide) {
     $Test->ok(0, $comment);
 
-    $Test->diag("value for 'have' contains wide bytes") if $have_is_wide;
-    $Test->diag("value for 'want' contains wide bytes") if $want_is_wide;
+    $Test->diag("value for 'have' contains wide codepoints") if $have_is_wide;
+    $Test->diag("value for 'want' contains wide codepoints") if $want_is_wide;
 
     return;
   }
