@@ -197,8 +197,8 @@ sub is_binary {
       last CHUNK;
     }
 
-    my $g_substr = substr($have, $pos, $aw);
-    my $e_substr = substr($want, $pos, $aw);
+    my $g_substr = length $have < $pos ? q{} : substr($have, $pos, $aw);
+    my $e_substr = length $want < $pos ? q{} : substr($want, $pos, $aw);
 
     my $eq = $g_substr eq $e_substr;
 
