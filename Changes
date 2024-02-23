@@ -1,6 +1,7 @@
 Revision history for Test-BinaryData
 
 {{$NEXT}}
+        - avoid warnings when is_binary inputs are of differing lengths
 
 0.015     2022-12-31 15:59:13-05:00 America/New_York
         - update packaging and metadata
